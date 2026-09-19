@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Investalia - Matriz Financiera</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#0f172a',
+                        cardBg: '#1e293b',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        .dark ::-webkit-scrollbar-thumb { background: #334155; }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-darkBg text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-200 flex flex-col">
+
+    <header class="bg-white dark:bg-cardBg border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <img src="logo.png" alt="Logo Investalia" class="w-11 h-11 rounded-full object-cover border-2 border-indigo-500/30 shadow-md" onerror="this.onerror=null; this.src='https://placehold.co/100x100/1e40af/ffffff?text=IN';">
+                <h1 class="text-xl sm:text-2xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">
+                    Investalia
+                </h1>
+            </div>
+            <div class="flex items-center space-x-3">
+                <!-- Botón de actualización con IA -->
+                <button onclick="fetchAiFinancialData()" class="hidden sm:flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-600 dark:text-indigo-400 text-xs font-semibold transition-colors border border-indigo-500/20" title="Actualizar ratios con IA">
+                    <span>✨ Actualizar con IA</span>
+                </button>
+                <!-- Settings Modal Trigger -->
+                <button onclick="openSettingsModal()" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors" title="Ajustes de API Key">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </button>
+                <!-- Dark Mode Toggle -->
+                <button onclick="toggleDarkMode()" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors" title="Modo oscuro">
+                    <svg id="theme-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full space-y-8">
+
+        <!-- Control Inputs -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-white dark:bg-cardBg p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center space-x-3">
+                <input type="text" id="new-company-input" placeholder="Ej. Microsoft o MSFT" class="flex-grow bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <button id="add-company-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-5 py-3 rounded-xl text-sm transition-colors shadow-sm shrink-0">+ Empresa</button>
+            </div>
+
+            <div class="bg-white dark:bg-cardBg p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center space-x-3">
+                <input type="text" id="new-ratio-input" placeholder="Ej. Deuda Neta / EBITDA..." class="flex-grow bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                <button id="add-ratio-btn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-5 py-3 rounded-xl text-sm transition-colors shadow-sm shrink-0">+ Ratio</button>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-cardBg rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <h2 class="text-lg font-bold tracking-tight">Matriz de Comparación</h2>
+                </div>
+                <div id="loading-indicator" class="hidden items-center space-x-2 text-xs text-indigo-500 font-medium">
+                    <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    <span>Consultando con IA...</span>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse" id="comparison-table">
+                    <thead>
+                        <tr class="border-b border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-400 uppercase tracking-wider bg-slate-50/50 dark:bg-slate-900/50">
+                            <th class="p-4 sm:p-6 min-w-[220px]">Empresa / Ticker</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200 dark:divide-slate-800 text-sm">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-cardBg rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-bold tracking-tight">Diario de Tesis y Niveles</h3>
+                <span id="save-status" class="text-xs text-slate-400">Guardado automático</span>
+            </div>
+            <textarea id="notes-textarea" placeholder="Apunta aquí tus tesis de inversión..." class="w-full h-36 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all resize-none"></textarea>
+        </div>
+
+    </main>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-cardBg rounded-3xl max-w-md w-full p-6 space-y-6 shadow-2xl border border-slate-200 dark:border-slate-800">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-bold">Ajustes de API Key</h3>
+                <button onclick="closeSettingsModal()" class="p-2 text-slate-400 hover:text-slate-600">✕</button>
+            </div>
+            <div class="space-y-4">
+                <div class="space-y-2">
+                    <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Google Gemini API Key</label>
+                    <input type="password" id="api-key-input" placeholder="AIzaSy..." class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <p class="text-xs text-slate-500">Se almacena de forma privada en tu navegador.</p>
+                </div>
+                <div class="space-y-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+                    <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Restaurar Valores Iniciales</label>
+                    <button onclick="resetDefaults()" class="w-full bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 font-medium py-2.5 rounded-xl text-sm transition-colors">Restaurar empresas y ratios por defecto</button>
+                </div>
+            </div>
+            <div class="flex justify-end space-x-3">
+                <button onclick="closeSettingsModal()" class="px-5 py-2.5 rounded-xl text-sm font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">Cancelar</button>
+                <button onclick="saveApiKey()" class="px-5 py-2.5 rounded-xl text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const defaultRatios = ["EV/EBITDA (NTM)", "ROIC (LTM)", "GROSS MARGIN (LTM)", "FCF EV YIELD (LTM)", "PEG (NTM)"];
+        const defaultCompanies = [
+            { name: "ASML Holding N.V.", ticker: "ASML", data: { "EV/EBITDA (NTM)": "28.2x", "ROIC (LTM)": "25.4%", "GROSS MARGIN (LTM)": "51.3%", "FCF EV YIELD (LTM)": "1.8%", "PEG (NTM)": "1.9x" } },
+            { name: "Mastercard Incorporated", ticker: "MA", data: { "EV/EBITDA (NTM)": "26.5x", "ROIC (LTM)": "50.2%", "GROSS MARGIN (LTM)": "100.0%", "FCF EV YIELD (LTM)": "2.4%", "PEG (NTM)": "2.1x" } },
+            { name: "Constellation Software Inc.", ticker: "CSU", data: { "EV/EBITDA (NTM)": "23.8x", "ROIC (LTM)": "27.5%", "GROSS MARGIN (LTM)": "34.9%", "FCF EV YIELD (LTM)": "2.9%", "PEG (NTM)": "1.8x" } },
+            { name: "Oracle Corporation", ticker: "ORCL", data: { "EV/EBITDA (NTM)": "18.7x", "ROIC (LTM)": "15.8%", "GROSS MARGIN (LTM)": "71.6%", "FCF EV YIELD (LTM)": "3.5%", "PEG (NTM)": "1.7x" } },
+            { name: "Industria de Diseño Textil, S.A.", ticker: "ITX", data: { "EV/EBITDA (NTM)": "12.9x", "ROIC (LTM)": "32.1%", "GROSS MARGIN (LTM)": "58.2%", "FCF EV YIELD (LTM)": "4.2%", "PEG (NTM)": "2.3x" } },
+            { name: "Waste Management, Inc.", ticker: "WM", data: { "EV/EBITDA (NTM)": "16.2x", "ROIC (LTM)": "12.8%", "GROSS MARGIN (LTM)": "38.9%", "FCF EV YIELD (LTM)": "2.6%", "PEG (NTM)": "2.8x" } },
+            { name: "The Cigna Group", ticker: "CI", data: { "EV/EBITDA (NTM)": "8.9x", "ROIC (LTM)": "10.5%", "GROSS MARGIN (LTM)": "14.7%", "FCF EV YIELD (LTM)": "8.8%", "PEG (NTM)": "0.9x" } }
+        ];
+
+        let ratios = JSON.parse(localStorage.getItem('investalia_ratios')) || defaultRatios;
+        let companies = JSON.parse(localStorage.getItem('investalia_companies')) || defaultCompanies;
+        let apiKey = localStorage.getItem('investalia_apikey') || '';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initDarkMode();
+            renderTableStructure();
+            loadTableData();
+            setupNotes();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            document.getElementById('add-company-btn').addEventListener('click', addCompany);
+            document.getElementById('add-ratio-btn').addEventListener('click', addRatio);
+            
+            document.getElementById('new-company-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addCompany();
+            });
+            document.getElementById('new-ratio-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addRatio();
+            });
+        }
+
+        function openSettingsModal() { 
+            document.getElementById('api-key-input').value = apiKey;
+            document.getElementById('settings-modal').classList.remove('hidden'); 
+        }
+        function closeSettingsModal() { document.getElementById('settings-modal').classList.add('hidden'); }
+        
+        function saveApiKey() {
+            apiKey = document.getElementById('api-key-input').value.trim();
+            localStorage.setItem('investalia_apikey', apiKey);
+            closeSettingsModal();
+            if(apiKey) fetchAiFinancialData();
+        }
+
+        function resetDefaults() {
+            localStorage.removeItem('investalia_ratios');
+            localStorage.removeItem('investalia_companies');
+            ratios = defaultRatios;
+            companies = defaultCompanies;
+            renderTableStructure();
+            loadTableData();
+            closeSettingsModal();
+        }
+
+        function initDarkMode() {
+            if (localStorage.getItem('theme') === 'light') document.documentElement.classList.remove('dark');
+            else document.documentElement.classList.add('dark');
+            updateThemeIcon();
+        }
+
+        function toggleDarkMode() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            const icon = document.getElementById('theme-icon');
+            const isDark = document.documentElement.classList.contains('dark');
+            icon.innerHTML = isDark 
+                ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>'
+                : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>';
+        }
+
+        function renderTableStructure() {
+            const theadRow = document.querySelector('#comparison-table thead tr');
+            let html = '<th class="p-4 sm:p-6 min-w-[220px]">Empresa / Ticker</th>';
+            ratios.forEach((ratio, index) => {
+                html += `<th class="p-4 sm:p-6 min-w-[150px]">${ratio} <button onclick="deleteRatio(${index})" class="ml-1 text-slate-400 hover:text-rose-400">×</button></th>`;
+            });
+            theadRow.innerHTML = html;
+        }
+
+        function loadTableData() {
+            const tbody = document.querySelector('#comparison-table tbody');
+            let html = '';
+            companies.forEach((comp, cIndex) => {
+                html += `<tr class="hover:bg-slate-50/50 dark:hover:bg-slate-900/40 transition-colors">`;
+                html += `<td class="p-4 sm:p-6 font-medium">
+                            <div class="text-slate-900 dark:text-slate-100 font-semibold">${comp.name}</div>
+                            <div class="text-xs text-indigo-500 dark:text-indigo-400 font-mono flex items-center justify-between mt-0.5">
+                                <span>${comp.ticker}</span>
+                                <button onclick="deleteCompany(${cIndex})" class="text-slate-400 hover:text-rose-400 text-xs">Eliminar</button>
+                            </div>
+                         </td>`;
+                
+                ratios.forEach(ratio => {
+                    const val = (comp.data && comp.data[ratio]) ? comp.data[ratio] : '-';
+                    let colorClass = "text-slate-600 dark:text-slate-300";
+                    if (val.includes('x')) colorClass = "text-indigo-600 dark:text-indigo-400 font-semibold";
+                    else if (val.includes('%')) colorClass = "text-emerald-600 dark:text-emerald-400 font-semibold";
+                    
+                    html += `<td class="p-4 sm:p-6 font-mono ${colorClass}">${val}</td>`;
+                });
+                html += `</tr>`;
+            });
+            tbody.innerHTML = html;
+        }
+
+        function addCompany() {
+            const input = document.getElementById('new-company-input');
+            const val = input.value.trim();
+            if(!val) return;
+
+            const newComp = {
+                name: val,
+                ticker: val.toUpperCase(),
+                data: {}
+            };
+            ratios.forEach(r => { newComp.data[r] = "Pendiente..."; });
+
+            companies.push(newComp);
+            localStorage.setItem('investalia_companies', JSON.stringify(companies));
+            input.value = '';
+            renderTableStructure();
+            loadTableData();
+
+            // Si hay API Key configurada, actualiza automáticamente con IA
+            if(apiKey) fetchAiFinancialData();
+        }
+
+        function deleteCompany(index) {
+            companies.splice(index, 1);
+            localStorage.setItem('investalia_companies', JSON.stringify(companies));
+            renderTableStructure();
+            loadTableData();
+        }
+
+        function addRatio() {
+            const input = document.getElementById('new-ratio-input');
+            const val = input.value.trim().toUpperCase();
+            if(!val) return;
+
+            ratios.push(val);
+            localStorage.setItem('investalia_ratios', JSON.stringify(ratios));
+            
+            companies.forEach(c => {
+                if(!c.data) c.data = {};
+                c.data[val] = "Pendiente...";
+            });
+            localStorage.setItem('investalia_companies', JSON.stringify(companies));
+
+            input.value = '';
+            renderTableStructure();
+            loadTableData();
+
+            if(apiKey) fetchAiFinancialData();
+        }
+
+        function deleteRatio(index) {
+            ratios.splice(index, 1);
+            localStorage.setItem('investalia_ratios', JSON.stringify(ratios));
+            renderTableStructure();
+            loadTableData();
+        }
+
+        async function fetchAiFinancialData() {
+            if(!apiKey) {
+                openSettingsModal();
+                return;
+            }
+
+            const loader = document.getElementById('loading-indicator');
+            loader.classList.remove('hidden');
+            loader.classList.add('flex');
+
+            const prompt = `Actúa como analista financiero experto. Proporciona estrictamente en formato JSON los valores financieros estimados actuales (LTM y NTM) para las siguientes empresas y métricas.
+Empresas (tickers o nombres): ${JSON.stringify(companies.map(c => c.ticker))}
+Métricas requeridas: ${JSON.stringify(ratios)}
+
+Devuelve exclusivamente un objeto JSON válido con esta estructura exacta, sin texto adicional ni bloques markdown:
+{
+  "TICKER": {
+    "Nombre exacto del ratio": "Valor numérico con formato (ej: 24.5x, 15.2%, etc)"
+  }
+}`;
+
+            try {
+                const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+                const proxyUrl = `https://corsproxy.io/?` + encodeURIComponent(targetUrl);
+
+                const response = await fetch(proxyUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: { responseMimeType: "application/json" }
+                    })
+                });
+
+                if(!response.ok) throw new Error('Error al conectar con la API');
+
+                const data = await response.json();
+                if(data.candidates && data.candidates[0].content.parts[0].text) {
+                    let textResult = data.candidates[0].content.parts[0].text;
+                    textResult = textResult.replace(/```json/g, '').replace(/```/g, '').trim();
+                    const parsed = JSON.parse(textResult);
+
+                    // Actualizar los datos de las empresas con los valores reales devueltos por la IA
+                    companies.forEach(comp => {
+                        if(parsed[comp.ticker]) {
+                            comp.data = { ...comp.data, ...parsed[comp.ticker] };
+                        }
+                    });
+
+                    localStorage.setItem('investalia_companies', JSON.stringify(companies));
+                    loadTableData();
+                }
+            } catch (err) {
+                console.error(err);
+                alert("No se pudieron actualizar los datos automáticamente. Comprueba que tu API Key sea correcta.");
+            } finally {
+                loader.classList.remove('flex');
+                loader.classList.add('hidden');
+            }
+        }
+
+        function setupNotes() {
+            const textarea = document.getElementById('notes-textarea');
+            const status = document.getElementById('save-status');
+            textarea.value = localStorage.getItem('investalia_notes') || '';
+
+            let timeout;
+            textarea.addEventListener('input', () => {
+                status.textContent = 'Guardando...';
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    localStorage.setItem('investalia_notes', textarea.value);
+                    status.textContent = 'Guardado automático';
+                }, 800);
+            });
+        }
+    </script>
+</body>
+</html>
