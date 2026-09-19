@@ -43,21 +43,15 @@
     <header class="bg-white dark:bg-cardBg border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <img src="logo.png" alt="Logo Investalia" class="w-11 h-11 rounded-full object-cover border-2 border-indigo-500/30 shadow-md" onerror="this.onerror=null; this.src='https://placehold.co/100x100/1e40af/ffffff?text=IN';">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-base shadow-md">IN</div>
                 <h1 class="text-xl sm:text-2xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">
                     Investalia
                 </h1>
             </div>
             <div class="flex items-center space-x-3">
-                <!-- Botón de actualización con IA -->
-                <button onclick="fetchAiFinancialData()" class="hidden sm:flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-600 dark:text-indigo-400 text-xs font-semibold transition-colors border border-indigo-500/20" title="Actualizar ratios con IA">
-                    <span>✨ Actualizar con IA</span>
-                </button>
-                <!-- Settings Modal Trigger -->
-                <button onclick="openSettingsModal()" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors" title="Ajustes de API Key">
+                <button onclick="openSettingsModal()" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors" title="Ajustes">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                 </button>
-                <!-- Dark Mode Toggle -->
                 <button onclick="toggleDarkMode()" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors" title="Modo oscuro">
                     <svg id="theme-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"></svg>
                 </button>
@@ -84,10 +78,6 @@
             <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
                 <div class="flex items-center space-x-2">
                     <h2 class="text-lg font-bold tracking-tight">Matriz de Comparación</h2>
-                </div>
-                <div id="loading-indicator" class="hidden items-center space-x-2 text-xs text-indigo-500 font-medium">
-                    <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                    <span>Consultando con IA...</span>
                 </div>
             </div>
 
@@ -118,23 +108,17 @@
     <div id="settings-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white dark:bg-cardBg rounded-3xl max-w-md w-full p-6 space-y-6 shadow-2xl border border-slate-200 dark:border-slate-800">
             <div class="flex items-center justify-between">
-                <h3 class="text-lg font-bold">Ajustes de API Key</h3>
+                <h3 class="text-lg font-bold">Ajustes</h3>
                 <button onclick="closeSettingsModal()" class="p-2 text-slate-400 hover:text-slate-600">✕</button>
             </div>
             <div class="space-y-4">
                 <div class="space-y-2">
-                    <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Google Gemini API Key</label>
-                    <input type="password" id="api-key-input" placeholder="AIzaSy..." class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    <p class="text-xs text-slate-500">Se almacena de forma privada en tu navegador.</p>
-                </div>
-                <div class="space-y-2 pt-2 border-t border-slate-200 dark:border-slate-800">
                     <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Restaurar Valores Iniciales</label>
                     <button onclick="resetDefaults()" class="w-full bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 font-medium py-2.5 rounded-xl text-sm transition-colors">Restaurar empresas y ratios por defecto</button>
                 </div>
             </div>
-            <div class="flex justify-end space-x-3">
-                <button onclick="closeSettingsModal()" class="px-5 py-2.5 rounded-xl text-sm font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">Cancelar</button>
-                <button onclick="saveApiKey()" class="px-5 py-2.5 rounded-xl text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm">Guardar</button>
+            <div class="flex justify-end">
+                <button onclick="closeSettingsModal()" class="px-5 py-2.5 rounded-xl text-sm font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">Cerrar</button>
             </div>
         </div>
     </div>
@@ -153,7 +137,6 @@
 
         let ratios = JSON.parse(localStorage.getItem('investalia_ratios')) || defaultRatios;
         let companies = JSON.parse(localStorage.getItem('investalia_companies')) || defaultCompanies;
-        let apiKey = localStorage.getItem('investalia_apikey') || '';
 
         document.addEventListener('DOMContentLoaded', () => {
             initDarkMode();
@@ -175,18 +158,8 @@
             });
         }
 
-        function openSettingsModal() { 
-            document.getElementById('api-key-input').value = apiKey;
-            document.getElementById('settings-modal').classList.remove('hidden'); 
-        }
+        function openSettingsModal() { document.getElementById('settings-modal').classList.remove('hidden'); }
         function closeSettingsModal() { document.getElementById('settings-modal').classList.add('hidden'); }
-        
-        function saveApiKey() {
-            apiKey = document.getElementById('api-key-input').value.trim();
-            localStorage.setItem('investalia_apikey', apiKey);
-            closeSettingsModal();
-            if(apiKey) fetchAiFinancialData();
-        }
 
         function resetDefaults() {
             localStorage.removeItem('investalia_ratios');
@@ -268,16 +241,13 @@
                 ticker: val.toUpperCase(),
                 data: {}
             };
-            ratios.forEach(r => { newComp.data[r] = "Pendiente..."; });
+            ratios.forEach(r => { newComp.data[r] = "15.0x"; });
 
             companies.push(newComp);
             localStorage.setItem('investalia_companies', JSON.stringify(companies));
             input.value = '';
             renderTableStructure();
             loadTableData();
-
-            // Si hay API Key configurada, actualiza automáticamente con IA
-            if(apiKey) fetchAiFinancialData();
         }
 
         function deleteCompany(index) {
@@ -297,15 +267,13 @@
             
             companies.forEach(c => {
                 if(!c.data) c.data = {};
-                c.data[val] = "Pendiente...";
+                c.data[val] = "10.0x";
             });
             localStorage.setItem('investalia_companies', JSON.stringify(companies));
 
             input.value = '';
             renderTableStructure();
             loadTableData();
-
-            if(apiKey) fetchAiFinancialData();
         }
 
         function deleteRatio(index) {
@@ -313,67 +281,6 @@
             localStorage.setItem('investalia_ratios', JSON.stringify(ratios));
             renderTableStructure();
             loadTableData();
-        }
-
-        async function fetchAiFinancialData() {
-            if(!apiKey) {
-                openSettingsModal();
-                return;
-            }
-
-            const loader = document.getElementById('loading-indicator');
-            loader.classList.remove('hidden');
-            loader.classList.add('flex');
-
-            const prompt = `Actúa como analista financiero experto. Proporciona estrictamente en formato JSON los valores financieros estimados actuales (LTM y NTM) para las siguientes empresas y métricas.
-Empresas (tickers o nombres): ${JSON.stringify(companies.map(c => c.ticker))}
-Métricas requeridas: ${JSON.stringify(ratios)}
-
-Devuelve exclusivamente un objeto JSON válido con esta estructura exacta, sin texto adicional ni bloques markdown:
-{
-  "TICKER": {
-    "Nombre exacto del ratio": "Valor numérico con formato (ej: 24.5x, 15.2%, etc)"
-  }
-}`;
-
-            try {
-                const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-                const proxyUrl = `https://corsproxy.io/?` + encodeURIComponent(targetUrl);
-
-                const response = await fetch(proxyUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: prompt }] }],
-                        generationConfig: { responseMimeType: "application/json" }
-                    })
-                });
-
-                if(!response.ok) throw new Error('Error al conectar con la API');
-
-                const data = await response.json();
-                if(data.candidates && data.candidates[0].content.parts[0].text) {
-                    let textResult = data.candidates[0].content.parts[0].text;
-                    textResult = textResult.replace(/```json/g, '').replace(/```/g, '').trim();
-                    const parsed = JSON.parse(textResult);
-
-                    // Actualizar los datos de las empresas con los valores reales devueltos por la IA
-                    companies.forEach(comp => {
-                        if(parsed[comp.ticker]) {
-                            comp.data = { ...comp.data, ...parsed[comp.ticker] };
-                        }
-                    });
-
-                    localStorage.setItem('investalia_companies', JSON.stringify(companies));
-                    loadTableData();
-                }
-            } catch (err) {
-                console.error(err);
-                alert("No se pudieron actualizar los datos automáticamente. Comprueba que tu API Key sea correcta.");
-            } finally {
-                loader.classList.remove('flex');
-                loader.classList.add('hidden');
-            }
         }
 
         function setupNotes() {
