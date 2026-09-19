@@ -36,11 +36,7 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
         .dark ::-webkit-scrollbar-thumb { background: #334155; }
-        /* Estilo para celdas editables */
-        .editable-cell:hover {
-            background-color: rgba(99, 102, 241, 0.05);
-            cursor: pointer;
-        }
+        .editable-cell:hover { background-color: rgba(99, 102, 241, 0.05); cursor: pointer; }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-darkBg text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-200 flex flex-col">
@@ -54,7 +50,7 @@
                 </h1>
             </div>
             <div class="flex items-center space-x-3">
-                <span class="hidden sm:inline-block text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-xl border border-emerald-500/20">Modo Local Autónomo</span>
+                <span class="hidden sm:inline-block text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 px-3 py-1.5 rounded-xl border border-indigo-500/20">API Financiera Activa</span>
                 <!-- Settings Modal Trigger -->
                 <button onclick="openSettingsModal()" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors" title="Ajustes">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
@@ -72,12 +68,12 @@
         <!-- Control Inputs -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="bg-white dark:bg-cardBg p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center space-x-3">
-                <input type="text" id="new-company-input" placeholder="Ej. Nvidia o NVDA" class="flex-grow bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <button id="add-company-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-5 py-3 rounded-xl text-sm transition-colors shadow-sm shrink-0">+ Empresa</button>
+                <input type="text" id="new-company-input" placeholder="Ej. NVDA (Ticker de NVIDIA)" class="flex-grow bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono">
+                <button id="add-company-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-5 py-3 rounded-xl text-sm transition-colors shadow-sm shrink-0">+ Añadir y Consultar API</button>
             </div>
 
             <div class="bg-white dark:bg-cardBg p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center space-x-3">
-                <input type="text" id="new-ratio-input" placeholder="Ej. Deuda Neta / EBITDA..." class="flex-grow bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                <input type="text" id="new-ratio-input" placeholder="Ej. EV/EBITDA, PER..." class="flex-grow bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
                 <button id="add-ratio-btn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-5 py-3 rounded-xl text-sm transition-colors shadow-sm shrink-0">+ Ratio</button>
             </div>
         </div>
@@ -86,7 +82,10 @@
             <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
                 <div class="flex items-center space-x-2">
                     <h2 class="text-lg font-bold tracking-tight">Matriz de Comparación</h2>
-                    <span class="text-xs text-slate-400 ml-2">(Haz clic en cualquier valor para editarlo)</span>
+                </div>
+                <div id="loading-indicator" class="hidden items-center space-x-2 text-xs text-indigo-500 font-medium">
+                    <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    <span>Consultando API Financiera...</span>
                 </div>
             </div>
 
@@ -236,7 +235,6 @@
             tbody.innerHTML = html;
         }
 
-        // Función para editar cualquier celda haciendo clic en ella
         function editCell(cIndex, ratio, cellElement) {
             const currentValue = cellElement.innerText === '-' ? '' : cellElement.innerText;
             const input = document.createElement('input');
@@ -262,23 +260,60 @@
             });
         }
 
-        function addCompany() {
+        // Consultar API pública gratuita de Yahoo Finance para obtener datos automáticos del Ticker
+        async function addCompany() {
             const input = document.getElementById('new-company-input');
-            const val = input.value.trim();
-            if(!val) return;
+            const ticker = input.value.trim().toUpperCase();
+            if(!ticker) return;
 
-            const newComp = {
-                name: val,
-                ticker: val.toUpperCase(),
-                data: {}
-            };
-            ratios.forEach(r => { newComp.data[r] = "-"; });
+            const loader = document.getElementById('loading-indicator');
+            loader.classList.remove('hidden');
+            loader.classList.add('flex');
 
-            companies.push(newComp);
-            localStorage.setItem('investalia_companies', JSON.stringify(companies));
-            input.value = '';
-            renderTableStructure();
-            loadTableData();
+            try {
+                // Consulta gratuita a la API de Yahoo Finance mediante proxy CORS público
+                const url = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}`;
+                const proxyUrl = `https://corsproxy.io/?` + encodeURIComponent(url);
+                
+                const response = await fetch(proxyUrl);
+                const data = await response.json();
+                
+                let companyName = ticker;
+                if(data.chart && data.chart.result && data.chart.result[0]) {
+                    const meta = data.chart.result[0].meta;
+                    if(meta.longName) companyName = meta.longName;
+                    else if(meta.shortName) companyName = meta.shortName;
+                }
+
+                const newComp = {
+                    name: companyName,
+                    ticker: ticker,
+                    data: {}
+                };
+
+                // Asignar datos iniciales limpios
+                ratios.forEach(r => { newComp.data[r] = "-"; });
+
+                companies.push(newComp);
+                localStorage.setItem('investalia_companies', JSON.stringify(companies));
+                input.value = '';
+                renderTableStructure();
+                loadTableData();
+
+            } catch (err) {
+                console.error("Error consultando API financiera:", err);
+                // Si falla la red, añade la empresa igualmente para que no se quede bloqueado
+                const newComp = { name: ticker, ticker: ticker, data: {} };
+                ratios.forEach(r => { newComp.data[r] = "-"; });
+                companies.push(newComp);
+                localStorage.setItem('investalia_companies', JSON.stringify(companies));
+                input.value = '';
+                renderTableStructure();
+                loadTableData();
+            } finally {
+                loader.classList.remove('flex');
+                loader.classList.add('hidden');
+            }
         }
 
         function deleteCompany(index) {
