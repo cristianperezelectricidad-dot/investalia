@@ -1,383 +1,686 @@
 <!DOCTYPE html>
-<html lang="es" class="dark">
+<html lang="es" class="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Investalia - Matriz Financiera</title>
-    
-    <!-- Tailwind CSS CDN -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investalia</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
-                    colors: {
-                        darkBg: '#0f172a',
-                        cardBg: '#1e293b',
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
                     }
                 }
             }
         }
     </script>
-    
-    <!-- Google Fonts: Inter & JetBrains Mono -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            -webkit-tap-highlight-color: transparent;
+            transition: background-color 0.3s, color 0.3s;
         }
-        .font-mono {
-            font-family: 'JetBrains Mono', monospace;
+        
+        .hide-scrollbar::-webkit-scrollbar { height: 8px; width: 8px; }
+        .hide-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .hide-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .dark .hide-scrollbar::-webkit-scrollbar-thumb { background: #475569; }
+        
+        .spinner {
+            border: 3px solid rgba(59, 130, 246, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid #3b82f6;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
         }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
-        .dark ::-webkit-scrollbar-thumb { background: #334155; }
-        .editable-cell:hover { background-color: rgba(99, 102, 241, 0.08); cursor: pointer; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Sticky table classes */
+        .sticky-top-left { position: sticky; top: 0; left: 0; z-index: 30; }
+        .sticky-left { position: sticky; left: 0; z-index: 20; }
+        .sticky-top { position: sticky; top: 0; z-index: 10; }
+        
+        .light .sticky-bg-tl { background-color: #f8fafc; }
+        .dark .sticky-bg-tl { background-color: #111827; }
+        .light .sticky-bg-l { background-color: #ffffff; }
+        .dark .sticky-bg-l { background-color: #1f2937; }
+        .light .sticky-bg-t { background-color: #f8fafc; }
+        .dark .sticky-bg-t { background-color: #111827; }
     </style>
 </head>
-<body class="bg-slate-50 dark:bg-darkBg text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-200 flex flex-col">
+<body class="min-h-screen flex flex-col bg-slate-50 dark:bg-gray-900 text-slate-900 dark:text-gray-100">
 
-    <header class="bg-white dark:bg-cardBg border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <img src="logo.png" alt="Logo Investalia" class="w-11 h-11 rounded-full object-cover border-2 border-indigo-500/30 shadow-md" onerror="this.onerror=null; this.src='https://placehold.co/100x100/1e40af/ffffff?text=IN';">
-                <h1 class="text-xl sm:text-2xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">
-                    Investalia
-                </h1>
-            </div>
-            <div class="flex items-center space-x-3">
-                <!-- Settings Modal Trigger -->
-                <button onclick="openSettingsModal()" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors" title="Ajustes">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                </button>
-                <!-- Dark Mode Toggle -->
-                <button onclick="toggleDarkMode()" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors" title="Modo oscuro">
-                    <svg id="theme-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"></svg>
-                </button>
+    <header class="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-40 border-b border-gray-200 dark:border-gray-700 transition-colors">
+        <div class="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex flex-col lg:flex-row justify-between items-center gap-4">
+                
+                <!-- Logo and Branding -->
+                <div class="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-start">
+                    <div class="flex items-center gap-3">
+                        <img src="image.png" alt="Logo Investalia Toro y Oso" class="w-12 h-12 rounded-full object-cover shadow-sm border border-gray-200 dark:border-gray-700" onerror="this.src='https://placehold.co/100x100/1e40af/ffffff?text=IN'">
+                        <h1 class="text-2xl font-bold tracking-tight">Investalia</h1>
+                    </div>
+                    
+                    <div class="flex items-center gap-2">
+                        <!-- Settings Button -->
+                        <button id="settingsBtn" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-600 dark:text-gray-300" title="Configurar API Key">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        </button>
+                        
+                        <!-- Theme Toggle Button -->
+                        <button id="themeToggle" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-600 dark:text-gray-300" title="Cambiar Tema">
+                            <svg id="sunIcon" class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                            <svg id="moonIcon" class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row w-full lg:w-auto gap-3">
+                    <div class="flex flex-1 sm:flex-none shadow-sm">
+                        <input type="text" id="companyInput" placeholder="Ej. Microsoft" 
+                               class="w-full sm:w-48 px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-l-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+                        <button id="addCompanyBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-r-lg font-medium transition-colors text-sm flex items-center justify-center min-w-[100px]">
+                            <span>+ Empresa</span>
+                        </button>
+                    </div>
+
+                    <div class="flex flex-1 sm:flex-none shadow-sm">
+                        <input type="text" id="ratioInput" placeholder="Ej. Deuda Total..." 
+                               class="w-full sm:w-48 px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-l-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                        <button id="addRatioBtn" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-r-lg font-medium transition-colors text-sm flex items-center justify-center min-w-[100px]">
+                            <span>+ Ratio</span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full space-y-8">
-
-        <!-- Control Inputs -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="bg-white dark:bg-cardBg p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center space-x-3">
-                <input type="text" id="new-company-input" placeholder="Ej. Nvidia o NVDA" class="flex-grow bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <button id="add-company-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-5 py-3 rounded-xl text-sm transition-colors shadow-sm shrink-0">+ Empresa</button>
+    <div id="settingsModal" class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full p-6 border border-gray-200 dark:border-gray-700">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
+                    Configuración de API
+                </h3>
+                <button id="closeSettingsBtn" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
             </div>
-
-            <div class="bg-white dark:bg-cardBg p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center space-x-3">
-                <input type="text" id="new-ratio-input" placeholder="Ej. EV/EBITDA, ROIC..." class="flex-grow bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                <button id="add-ratio-btn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-5 py-3 rounded-xl text-sm transition-colors shadow-sm shrink-0">+ Ratio</button>
+            
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                Investalia utiliza inteligencia artificial para analizar y estimar ratios financieros en tiempo real. Introduce tu API Key de <strong>Google Gemini</strong> para activar la matriz. Se guardará localmente en tu navegador de forma segura.
+            </p>
+            
+            <div class="mb-5">
+                <label for="apiKeyInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Gemini API Key</label>
+                <input type="password" id="apiKeyInput" placeholder="AIzaSy..." class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-mono">
+                <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline mt-2 inline-block">¿No tienes clave? Consíguela gratis aquí.</a>
             </div>
-        </div>
-
-        <div class="bg-white dark:bg-cardBg rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-            <!-- CABECERA DE LA TABLA CON BOTONES DE IMPORTAR / EXPORTAR BIEN VISIBLES -->
-            <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div class="flex items-center space-x-2">
-                    <h2 class="text-lg font-bold tracking-tight">Matriz de Comparación</h2>
-                    <span class="text-xs text-indigo-500 dark:text-indigo-400 ml-2 hidden md:inline font-medium">💡 Clic en cualquier celda para editar</span>
-                </div>
-                <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
-                    <button onclick="exportData()" class="px-4 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-xs font-semibold transition-colors border border-indigo-500/20 flex items-center space-x-1.5 shadow-sm">
-                        <span>📤 Exportar JSON</span>
-                    </button>
-                    <button onclick="document.getElementById('import-file-input').click()" class="px-4 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-xs font-semibold transition-colors border border-emerald-500/20 flex items-center space-x-1.5 shadow-sm">
-                        <span>📥 Importar JSON</span>
-                    </button>
-                    <input type="file" id="import-file-input" accept=".json" class="hidden" onchange="importData(event)">
-                </div>
-            </div>
-
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse" id="comparison-table">
-                    <thead>
-                        <tr class="border-b border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-400 uppercase tracking-wider bg-slate-50/50 dark:bg-slate-900/50">
-                            <th class="p-4 sm:p-6 min-w-[220px]">Empresa / Ticker</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-200 dark:divide-slate-800 text-sm">
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="bg-white dark:bg-cardBg rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 space-y-4">
-            <div class="flex items-center justify-between">
-                <h3 class="text-lg font-bold tracking-tight">Diario de Tesis y Niveles</h3>
-                <span id="save-status" class="text-xs text-slate-400">Guardado automático</span>
-            </div>
-            <textarea id="notes-textarea" placeholder="Apunta aquí tus tesis de inversión..." class="w-full h-36 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all resize-none"></textarea>
-        </div>
-
-    </main>
-
-    <!-- Settings Modal -->
-    <div id="settings-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-cardBg rounded-3xl max-w-md w-full p-6 space-y-6 shadow-2xl border border-slate-200 dark:border-slate-800">
-            <div class="flex items-center justify-between">
-                <h3 class="text-lg font-bold">Ajustes</h3>
-                <button onclick="closeSettingsModal()" class="p-2 text-slate-400 hover:text-slate-600">✕</button>
-            </div>
-            <div class="space-y-4">
-                <div class="space-y-2">
-                    <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Restaurar Valores Iniciales</label>
-                    <button onclick="resetDefaults()" class="w-full bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 font-medium py-2.5 rounded-xl text-sm transition-colors">Restaurar empresas y ratios por defecto</button>
-                </div>
-            </div>
-            <div class="flex justify-end">
-                <button onclick="closeSettingsModal()" class="px-5 py-2.5 rounded-xl text-sm font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">Cerrar</button>
+            
+            <div class="flex justify-end gap-3">
+                <button id="cancelSettingsBtn" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">Cancelar</button>
+                <button id="saveSettingsBtn" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors shadow-sm">Guardar y Cargar</button>
             </div>
         </div>
     </div>
 
-    <script>
-        const defaultRatios = ["EV/EBITDA (NTM)", "ROIC (LTM)", "GROSS MARGIN (LTM)", "FCF EV YIELD (LTM)", "PEG (NTM)"];
-        const defaultCompanies = [
-            { name: "ASML Holding N.V.", ticker: "ASML", data: { "EV/EBITDA (NTM)": "28.2x", "ROIC (LTM)": "25.4%", "GROSS MARGIN (LTM)": "51.3%", "FCF EV YIELD (LTM)": "1.8%", "PEG (NTM)": "1.9x" } },
-            { name: "Mastercard Incorporated", ticker: "MA", data: { "EV/EBITDA (NTM)": "26.5x", "ROIC (LTM)": "50.2%", "GROSS MARGIN (LTM)": "100.0%", "FCF EV YIELD (LTM)": "2.4%", "PEG (NTM)": "2.1x" } },
-            { name: "Constellation Software Inc.", ticker: "CSU", data: { "EV/EBITDA (NTM)": "23.8x", "ROIC (LTM)": "27.5%", "GROSS MARGIN (LTM)": "34.9%", "FCF EV YIELD (LTM)": "2.9%", "PEG (NTM)": "1.8x" } },
-            { name: "Oracle Corporation", ticker: "ORCL", data: { "EV/EBITDA (NTM)": "18.7x", "ROIC (LTM)": "15.8%", "GROSS MARGIN (LTM)": "71.6%", "FCF EV YIELD (LTM)": "3.5%", "PEG (NTM)": "1.7x" } },
-            { name: "Industria de Diseño Textil, S.A.", ticker: "ITX", data: { "EV/EBITDA (NTM)": "12.9x", "ROIC (LTM)": "32.1%", "GROSS MARGIN (LTM)": "58.2%", "FCF EV YIELD (LTM)": "4.2%", "PEG (NTM)": "2.3x" } },
-            { name: "Waste Management, Inc.", ticker: "WM", data: { "EV/EBITDA (NTM)": "16.2x", "ROIC (LTM)": "12.8%", "GROSS MARGIN (LTM)": "38.9%", "FCF EV YIELD (LTM)": "2.6%", "PEG (NTM)": "2.8x" } },
-            { name: "The Cigna Group", ticker: "CI", data: { "EV/EBITDA (NTM)": "8.9x", "ROIC (LTM)": "10.5%", "GROSS MARGIN (LTM)": "14.7%", "FCF EV YIELD (LTM)": "8.8%", "PEG (NTM)": "0.9x" } }
+    <main class="flex-grow max-w-[1500px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 flex flex-col lg:flex-row gap-6">
+        
+        <!-- Table Container (Left side) -->
+        <div class="w-full lg:w-3/4 flex flex-col gap-4">
+            <!-- Toast / Status Message Area -->
+            <div id="statusMessage" class="hidden rounded-lg p-4 text-sm font-medium transition-all shadow-sm flex justify-between items-center">
+                <span id="statusText"></span>
+                <button id="statusActionBtn" class="hidden underline text-xs font-bold hover:opacity-80"></button>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col relative min-h-[500px]">
+                
+                <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50/80 dark:bg-gray-800/80">
+                    <h2 class="text-lg font-semibold flex items-center gap-2">
+                        <svg class="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                        Matriz de Comparación
+                    </h2>
+                    
+                    <div class="flex items-center gap-3">
+                        <button id="refreshDataBtn" class="text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 border border-gray-200 dark:border-gray-600 shadow-sm">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                            Recargar Datos
+                        </button>
+                        
+                        <div id="loadingIndicator" class="hidden items-center gap-2 text-indigo-600 dark:text-indigo-400 text-sm font-semibold bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1.5 rounded-full border border-indigo-100 dark:border-indigo-800">
+                            <div class="spinner border-indigo-200 dark:border-indigo-700 border-t-indigo-600 dark:border-t-indigo-400"></div>
+                            <span id="loadingText">Procesando...</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="overflow-auto hide-scrollbar w-full h-[600px] relative bg-white dark:bg-gray-800">
+                    <table class="w-full text-left border-collapse" id="comparisonTable">
+                        <thead id="tableHead" class="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider bg-gray-50 dark:bg-gray-800">
+                            <!-- Table headers will be injected here dynamically -->
+                        </thead>
+                        <tbody id="tableBody" class="text-gray-700 dark:text-gray-300 divide-y divide-gray-100 dark:divide-gray-700">
+                            <!-- Table rows will be injected here dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Estado vacío cuando no hay API Key o no hay empresas -->
+                <div id="emptyState" class="hidden absolute inset-0 bg-white dark:bg-gray-800 flex-col items-center justify-center p-4 text-center z-20">
+                    <div class="bg-gray-50 dark:bg-gray-900 rounded-full p-6 mb-4 border border-gray-100 dark:border-gray-700 shadow-sm">
+                        <svg class="w-12 h-12 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">Panel Vacío o Sin Configurar</h3>
+                    <p class="text-gray-500 dark:text-gray-400 mt-2 max-w-md text-sm">
+                        Asegúrate de haber configurado tu API Key en los Ajustes (⚙️) y de tener empresas en la lista para comenzar la comparativa automática.
+                    </p>
+                    <button onclick="window.openSettings()" class="mt-6 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg font-medium transition-colors shadow-sm flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        Configurar API Key
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full lg:w-1/4 h-full min-h-[400px] lg:min-h-[600px] flex flex-col">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden flex-grow transition-colors">
+                <div class="p-4 border-b border-gray-200 dark:border-gray-700 bg-amber-50 dark:bg-amber-900/20 flex justify-between items-center">
+                    <h2 class="text-lg font-semibold flex items-center gap-2 text-amber-800 dark:text-amber-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                        Diario de Trading
+                    </h2>
+                    <span id="saveStatus" class="text-xs font-bold text-gray-500 dark:text-gray-400"></span>
+                </div>
+                <textarea id="notesArea" class="w-full flex-grow p-4 bg-transparent resize-none focus:outline-none focus:ring-inset focus:ring-2 focus:ring-indigo-500 text-sm leading-relaxed text-gray-700 dark:text-gray-300 placeholder-gray-400 dark:placeholder-gray-500" placeholder="Apunta aquí tus tesis de inversión, niveles clave de soporte/resistencia o conclusiones sobre los fundamentales. El texto se guarda automáticamente en la nube de Firebase asociado a tu sesión..."></textarea>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global config provided by environment variables
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'investalia-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        
+        let db, auth, currentUserId = null;
+        
+        // Inicializar Firebase
+        if (Object.keys(firebaseConfig).length > 0) {
+            const app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+            initAuth();
+        }
+
+        // Elementos del DOM
+        const notesArea = document.getElementById('notesArea');
+        const saveStatus = document.getElementById('saveStatus');
+        const themeToggle = document.getElementById('themeToggle');
+        const htmlElement = document.documentElement;
+        
+        const settingsModal = document.getElementById('settingsModal');
+        const settingsBtn = document.getElementById('settingsBtn');
+        const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+        const cancelSettingsBtn = document.getElementById('cancelSettingsBtn');
+        const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+        const apiKeyInput = document.getElementById('apiKeyInput');
+        
+        const companyInput = document.getElementById('companyInput');
+        const ratioInput = document.getElementById('ratioInput');
+        const addCompanyBtn = document.getElementById('addCompanyBtn');
+        const addRatioBtn = document.getElementById('addRatioBtn');
+        const refreshDataBtn = document.getElementById('refreshDataBtn');
+        
+        const tableHead = document.getElementById('tableHead');
+        const tableBody = document.getElementById('tableBody');
+        const comparisonTable = document.getElementById('comparisonTable');
+        const emptyState = document.getElementById('emptyState');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const loadingText = document.getElementById('loadingText');
+        
+        const statusMessage = document.getElementById('statusMessage');
+        const statusText = document.getElementById('statusText');
+        const statusActionBtn = document.getElementById('statusActionBtn');
+
+        // Estado de la aplicación
+        let saveTimeout = null;
+        let companiesData = [];
+        let isLoading = false;
+
+        // Empresas y ratios por defecto requeridos por el usuario
+        const defaultCompanies = ["ASML", "Mastercard", "Constellation Software", "Oracle", "Inditex", "Waste Management", "Cigna", "Nvidia", "AppLovin", "Vertiv"];
+        let currentCompanies = [...defaultCompanies];
+        
+        let currentMetrics = [
+            { id: 'evebitda_ntm', label: 'EV/EBITDA (NTM)' },
+            { id: 'roic_ltm', label: 'ROIC (LTM)' },
+            { id: 'grossmargin_ltm', label: 'GROSS MARGIN (LTM)' },
+            { id: 'fcfevyield_ltm', label: 'FCF EV YIELD (LTM)' },
+            { id: 'peg_ntm', label: 'PEG (NTM)' },
+            { id: 'perforward_ntm', label: 'PER FORWARD (NTM)' }
         ];
 
-        let ratios = JSON.parse(localStorage.getItem('investalia_ratios')) || defaultRatios;
-        let companies = JSON.parse(localStorage.getItem('investalia_companies')) || defaultCompanies;
+        async function initAuth() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    const userCred = await signInWithCustomToken(auth, __initial_auth_token);
+                    currentUserId = userCred.user.uid;
+                } else {
+                    const userCred = await signInAnonymously(auth);
+                    currentUserId = userCred.user.uid;
+                }
+                loadNotes();
+            } catch (error) {
+                console.error("Firebase Auth Error:", error);
+                saveStatus.textContent = "Offline Mode";
+            }
+        }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            initDarkMode();
-            renderTableStructure();
-            loadTableData();
-            setupNotes();
-            setupEventListeners();
+        async function loadNotes() {
+            if (!currentUserId || !db) return;
+            try {
+                // Rule 1: Strict Paths enforcement
+                const docRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'notes', 'main_analysis');
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    notesArea.value = docSnap.data().content || '';
+                }
+            } catch (error) {
+                console.error("Error loading notes:", error);
+            }
+        }
+
+        async function saveNotesToCloud() {
+            if (!currentUserId || !db) return; // Rule 3: Auth before queries
+            saveStatus.textContent = "Guardando...";
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'notes', 'main_analysis');
+                await setDoc(docRef, {
+                    content: notesArea.value,
+                    updatedAt: new Date().toISOString()
+                });
+                saveStatus.textContent = "Guardado ✓";
+                setTimeout(() => { if(saveStatus.textContent === "Guardado ✓") saveStatus.textContent = ""; }, 2000);
+            } catch (error) {
+                console.error("Error saving notes:", error);
+                saveStatus.textContent = "Error";
+            }
+        }
+
+        // Listener para autoguardado (Debounce 1 segundo)
+        notesArea.addEventListener('input', () => {
+            if (!currentUserId) return;
+            saveStatus.textContent = "Escribiendo...";
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(saveNotesToCloud, 1000);
         });
 
-        function setupEventListeners() {
-            document.getElementById('add-company-btn').addEventListener('click', addCompany);
-            document.getElementById('add-ratio-btn').addEventListener('click', addRatio);
-            
-            document.getElementById('new-company-input').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') addCompany();
-            });
-            document.getElementById('new-ratio-input').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') addRatio();
-            });
+        // Alternar modo oscuro
+        themeToggle.addEventListener('click', () => {
+            htmlElement.classList.toggle('dark');
+            localStorage.setItem('investalia_theme', htmlElement.classList.contains('dark') ? 'dark' : 'light');
+        });
+
+        // Comprobar preferencia de tema inicial
+        if (localStorage.getItem('investalia_theme') === 'dark' || 
+           (!localStorage.getItem('investalia_theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            htmlElement.classList.add('dark');
         }
 
-        function openSettingsModal() { document.getElementById('settings-modal').classList.remove('hidden'); }
-        function closeSettingsModal() { document.getElementById('settings-modal').classList.add('hidden'); }
-
-        function resetDefaults() {
-            localStorage.removeItem('investalia_ratios');
-            localStorage.removeItem('investalia_companies');
-            ratios = defaultRatios;
-            companies = defaultCompanies;
-            renderTableStructure();
-            loadTableData();
-            closeSettingsModal();
+        // Funciones del Modal de Ajustes (API Key)
+        window.openSettings = () => {
+            apiKeyInput.value = localStorage.getItem('gemini_api_key') || '';
+            settingsModal.classList.remove('hidden');
+        };
+        
+        function closeSettings() {
+            settingsModal.classList.add('hidden');
         }
 
-        function initDarkMode() {
-            if (localStorage.getItem('theme') === 'light') document.documentElement.classList.remove('dark');
-            else document.documentElement.classList.add('dark');
-            updateThemeIcon();
-        }
-
-        function toggleDarkMode() {
-            if (document.documentElement.classList.contains('dark')) {
-                document.documentElement.classList.remove('dark');
-                localStorage.setItem('theme', 'light');
+        settingsBtn.addEventListener('click', window.openSettings);
+        closeSettingsBtn.addEventListener('click', closeSettings);
+        cancelSettingsBtn.addEventListener('click', closeSettings);
+        
+        saveSettingsBtn.addEventListener('click', () => {
+            const key = apiKeyInput.value.trim();
+            if (key) {
+                localStorage.setItem('gemini_api_key', key);
+                closeSettings();
+                showStatus("API Key guardada exitosamente.");
+                // Si la tabla estaba bloqueada/vacía, forzar carga al guardar
+                if(companiesData.length === 0 && currentCompanies.length > 0) {
+                    loadInitialData();
+                }
             } else {
-                document.documentElement.classList.add('dark');
-                localStorage.setItem('theme', 'dark');
+                localStorage.removeItem('gemini_api_key');
+                closeSettings();
             }
-            updateThemeIcon();
-        }
+        });
 
-        function updateThemeIcon() {
-            const icon = document.getElementById('theme-icon');
-            const isDark = document.documentElement.classList.contains('dark');
-            icon.innerHTML = isDark 
-                ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>'
-                : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>';
-        }
-
-        function renderTableStructure() {
-            const theadRow = document.querySelector('#comparison-table thead tr');
-            let html = '<th class="p-4 sm:p-6 min-w-[220px]">Empresa / Ticker</th>';
-            ratios.forEach((ratio, index) => {
-                html += `<th class="p-4 sm:p-6 min-w-[150px]">${ratio} <button onclick="deleteRatio(${index})" class="ml-1 text-slate-400 hover:text-rose-400" title="Eliminar ratio">×</button></th>`;
-            });
-            theadRow.innerHTML = html;
-        }
-
-        function loadTableData() {
-            const tbody = document.querySelector('#comparison-table tbody');
-            let html = '';
-            companies.forEach((comp, cIndex) => {
-                html += `<tr class="hover:bg-slate-50/50 dark:hover:bg-slate-900/40 transition-colors">`;
-                html += `<td class="p-4 sm:p-6 font-medium">
-                            <div class="text-slate-900 dark:text-slate-100 font-semibold">${comp.name}</div>
-                            <div class="text-xs text-indigo-500 dark:text-indigo-400 font-mono flex items-center justify-between mt-0.5">
-                                <span>${comp.ticker}</span>
-                                <button onclick="deleteCompany(${cIndex})" class="text-slate-400 hover:text-rose-400 text-xs">Eliminar</button>
-                            </div>
-                         </td>`;
-                
-                ratios.forEach(ratio => {
-                    const val = (comp.data && comp.data[ratio]) ? comp.data[ratio] : '-';
-                    html += `<td class="p-4 sm:p-6 font-mono text-slate-600 dark:text-slate-300 editable-cell" onclick="editCell(${cIndex}, '${ratio}', this)" title="Haz clic para editar">${val}</td>`;
-                });
-                html += `</tr>`;
-            });
-            tbody.innerHTML = html;
-        }
-
-        function editCell(cIndex, ratio, cellElement) {
-            const currentValue = cellElement.innerText === '-' ? '' : cellElement.innerText;
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.value = currentValue;
-            input.className = 'w-full bg-slate-100 dark:bg-slate-800 border border-indigo-500 rounded px-2 py-1 text-sm font-mono text-slate-800 dark:text-slate-100 focus:outline-none';
+        // Mostrar mensajes de estado tipo Toast (sin usar alert)
+        function showStatus(msg, type = 'success', actionText = null, actionFn = null) {
+            statusText.textContent = msg;
             
-            cellElement.innerHTML = '';
-            cellElement.appendChild(input);
-            input.focus();
+            if(actionText && actionFn) {
+                statusActionBtn.textContent = actionText;
+                statusActionBtn.onclick = actionFn;
+                statusActionBtn.classList.remove('hidden');
+            } else {
+                statusActionBtn.classList.add('hidden');
+            }
 
-            const saveValue = () => {
-                const newVal = input.value.trim() || '-';
-                if (!companies[cIndex].data) companies[cIndex].data = {};
-                companies[cIndex].data[ratio] = newVal;
-                localStorage.setItem('investalia_companies', JSON.stringify(companies));
-                loadTableData();
-            };
-
-            input.addEventListener('blur', saveValue);
-            input.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') saveValue();
-            });
-        }
-
-        function addCompany() {
-            const input = document.getElementById('new-company-input');
-            const val = input.value.trim();
-            if(!val) return;
-
-            const newComp = {
-                name: val,
-                ticker: val.toUpperCase(),
-                data: {}
-            };
-            ratios.forEach(r => { newComp.data[r] = "-"; });
-
-            companies.push(newComp);
-            localStorage.setItem('investalia_companies', JSON.stringify(companies));
-            input.value = '';
-            renderTableStructure();
-            loadTableData();
-        }
-
-        function deleteCompany(index) {
-            companies.splice(index, 1);
-            localStorage.setItem('investalia_companies', JSON.stringify(companies));
-            renderTableStructure();
-            loadTableData();
-        }
-
-        function addRatio() {
-            const input = document.getElementById('new-ratio-input');
-            const val = input.value.trim().toUpperCase();
-            if(!val) return;
-
-            ratios.push(val);
-            localStorage.setItem('investalia_ratios', JSON.stringify(ratios));
+            statusMessage.className = `p-4 text-sm rounded-lg transition-all shadow-sm flex justify-between items-center ${
+                type === 'error' ? 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800' 
+                        : type === 'warning' ? 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800'
+                        : 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800'
+            }`;
+            statusMessage.classList.remove('hidden');
             
-            companies.forEach(c => {
-                if(!c.data) c.data = {};
-                c.data[val] = "-";
-            });
-            localStorage.setItem('investalia_companies', JSON.stringify(companies));
-
-            input.value = '';
-            renderTableStructure();
-            loadTableData();
+            // Ocultar automáticamente si no es un warning persistente
+            if(type !== 'warning') {
+                setTimeout(() => statusMessage.classList.add('hidden'), 6000);
+            }
         }
 
-        function deleteRatio(index) {
-            ratios.splice(index, 1);
-            localStorage.setItem('investalia_ratios', JSON.stringify(ratios));
-            renderTableStructure();
-            loadTableData();
-        }
-
-        function setupNotes() {
-            const textarea = document.getElementById('notes-textarea');
-            const status = document.getElementById('save-status');
-            textarea.value = localStorage.getItem('investalia_notes') || '';
-
-            let timeout;
-            textarea.addEventListener('input', () => {
-                status.textContent = 'Guardando...';
-                clearTimeout(timeout);
-                timeout = setTimeout(() => {
-                    localStorage.setItem('investalia_notes', textarea.value);
-                    status.textContent = 'Guardado automático';
-                }, 800);
+        // Controlar el estado de carga visual
+        function setLoading(loading, text = "Cargando...") {
+            isLoading = loading;
+            loadingText.textContent = text;
+            loadingIndicator.classList.toggle('hidden', !loading);
+            loadingIndicator.classList.toggle('flex', loading);
+            
+            // Deshabilitar controles mientras carga
+            [addCompanyBtn, addRatioBtn, companyInput, ratioInput, refreshDataBtn].forEach(el => {
+                el.disabled = loading;
+                el.classList.toggle('opacity-50', loading);
+                el.classList.toggle('cursor-not-allowed', loading);
             });
         }
 
-        // FUNCIONES DE EXPORTAR E IMPORTAR DATOS JSON
-        function exportData() {
-            const backup = {
-                ratios: ratios,
-                companies: companies,
-                notes: localStorage.getItem('investalia_notes') || ''
+        async function fetchFinancialData(companiesToFetch, metricsToFetch) {
+            const apiKey = localStorage.getItem('gemini_api_key');
+            
+            if (!apiKey) {
+                showStatus("Falta API Key de Gemini. Haz clic en el icono del engranaje para configurarla.", "warning", "Abrir Ajustes", window.openSettings);
+                return null;
+            }
+
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+            
+            // Construir la descripción de las métricas para que Gemini entienda exactamente qué buscar
+            const metricsDescription = metricsToFetch.map(m => `- "${m.id}": Representa "${m.label}"`).join('\n');
+            
+            const promptText = `Actúa como un experto analista financiero institucional.
+            Tu tarea es calcular o extraer las estimaciones de consenso actuales (reales) para las siguientes empresas: ${companiesToFetch.join(', ')}.
+            
+            Devuelve estrictamente un JSON (array de objetos) donde cada objeto representa una empresa. 
+            Importante: LTM significa Trailing 12 Months. NTM significa Next Twelve Months (Forward).
+            
+            El JSON debe incluir:
+            - "ticker": Símbolo bursátil corto (ej. MSFT, ASML).
+            - "name": Nombre comercial estándar.
+            
+            Además, incluye EXACTAMENTE estas claves con sus valores numéricos/estimados actuales (como strings con formato):
+            ${metricsDescription}
+            
+            Reglas de formato:
+            - Para márgenes, yields o crecimientos: Incluye el símbolo % (ej. 15.2%).
+            - Para multiplicadores (EV/EBITDA, PEG, PER, etc): Número seguido de la letra 'x' (ej. 25.4x).
+            - Si algún dato es absolutamente imposible de calcular o no existe, devuelve "N/A".`;
+
+            // Preparar el esquema JSON estructurado para garantizar la consistencia
+            const propertiesSchema = {
+                ticker: { type: "STRING" },
+                name: { type: "STRING" }
             };
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backup, null, 2));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", "investalia_backup.json");
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-        }
+            const requiredFields = ["ticker", "name"];
+            metricsToFetch.forEach(m => {
+                propertiesSchema[m.id] = { type: "STRING" };
+                requiredFields.push(m.id);
+            });
 
-        function importData(event) {
-            const fileReader = new FileReader();
-            if (event.target.files[0]) {
-                fileReader.readAsText(event.target.files[0], "UTF-8");
-                fileReader.onload = (e) => {
-                    try {
-                        const parsed = JSON.parse(e.target.result);
-                        if (parsed.ratios && parsed.companies) {
-                            ratios = parsed.ratios;
-                            companies = parsed.companies;
-                            localStorage.setItem('investalia_ratios', JSON.stringify(ratios));
-                            localStorage.setItem('investalia_companies', JSON.stringify(companies));
-                            if (parsed.notes !== undefined) {
-                                localStorage.setItem('investalia_notes', parsed.notes);
-                                document.getElementById('notes-textarea').value = parsed.notes;
-                            }
-                            renderTableStructure();
-                            loadTableData();
-                            alert("¡Datos importados y actualizados correctamente con éxito!");
-                        } else {
-                            alert("El archivo JSON no tiene el formato correcto.");
-                        }
-                    } catch (err) {
-                        alert("Error al leer el archivo JSON.");
+            const payload = {
+                contents: [{ parts: [{ text: promptText }] }],
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "ARRAY",
+                        items: { type: "OBJECT", properties: propertiesSchema, required: requiredFields }
                     }
-                };
+                }
+            };
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.error?.message || `Error HTTP: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                if (result.candidates && result.candidates[0].content?.parts?.length > 0) {
+                    return JSON.parse(result.candidates[0].content.parts[0].text);
+                } else {
+                    throw new Error("Respuesta vacía o formato inválido por parte de Gemini.");
+                }
+            } catch (error) {
+                console.error("Error al consultar Gemini API:", error);
+                
+                if (error.message.includes('API key not valid')) {
+                    showStatus("La API Key de Gemini introducida no es válida o tiene errores tipográficos.", "error", "Revisar Key", window.openSettings);
+                } else {
+                    showStatus(`Error en la consulta: ${error.message.substring(0, 60)}...`, "error");
+                }
+                return null;
             }
         }
+
+        function renderTable() {
+            // Manejo de estado vacío
+            if (companiesData.length === 0 || currentMetrics.length === 0) {
+                comparisonTable.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                return;
+            }
+            comparisonTable.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            emptyState.classList.remove('flex');
+            statusMessage.classList.add('hidden');
+
+            // Renderizar la cabecera (Thead)
+            let headHtml = `
+                <tr>
+                    <th class="p-4 border-b border-r border-gray-200 dark:border-gray-700 min-w-[250px] sticky-top-left sticky-bg-tl shadow-[2px_2px_5px_-2px_rgba(0,0,0,0.1)] text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest">
+                        Empresa / Ticker
+                    </th>
+            `;
+            currentMetrics.forEach((metric, index) => {
+                headHtml += `
+                    <th class="p-4 border-b border-gray-200 dark:border-gray-700 min-w-[160px] sticky-top sticky-bg-t group whitespace-nowrap">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-xs font-bold text-gray-600 dark:text-gray-300">${metric.label}</span>
+                            <button onclick="window.removeRatio(${index})" class="p-1.5 text-gray-400 hover:text-red-500 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-all opacity-0 group-hover:opacity-100 focus:opacity-100" title="Eliminar ratio de la tabla">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                        </div>
+                    </th>
+                `;
+            });
+            headHtml += `</tr>`;
+            tableHead.innerHTML = headHtml;
+
+            // Renderizar el cuerpo de la tabla (Tbody)
+            let bodyHtml = '';
+            companiesData.forEach((company, cIndex) => {
+                bodyHtml += `
+                    <tr class="hover:bg-indigo-50/40 dark:hover:bg-gray-700/40 transition-colors group">
+                        <td class="p-4 border-b border-r border-gray-200 dark:border-gray-700 sticky-left sticky-bg-l shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
+                            <div class="flex items-center justify-between">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold text-gray-900 dark:text-gray-100">${company.name}</span>
+                                    <span class="text-xs font-medium text-gray-500 dark:text-gray-400">${company.ticker}</span>
+                                </div>
+                                <button onclick="window.removeCompany(${cIndex})" class="p-1.5 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all rounded-full hover:bg-red-50 dark:hover:bg-red-900/30" title="Eliminar empresa de la tabla">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
+                            </div>
+                        </td>
+                `;
+
+                // Renderizar los valores para cada ratio
+                currentMetrics.forEach(metric => {
+                    let val = company[metric.id];
+                    let displayVal = val || '-';
+                    
+                    // Lógica para aplicar estilo font-mono exigido y color semántico a los valores financieros
+                    let textClass = 'font-mono text-gray-700 dark:text-gray-300 font-medium text-sm';
+                    
+                    if (displayVal !== 'N/A' && displayVal !== '-') {
+                        if (displayVal.includes('%')) {
+                            // Porcentajes negativos en rojo, positivos en verde
+                            if (displayVal.includes('-')) textClass = 'font-mono text-red-600 dark:text-red-400 font-semibold text-sm';
+                            else textClass = 'font-mono text-green-600 dark:text-green-400 font-semibold text-sm';
+                        } else if (displayVal.includes('x')) {
+                            // Multiplicadores en tono azul/índigo
+                            textClass = 'font-mono text-indigo-700 dark:text-indigo-400 font-bold text-sm';
+                        }
+                    }
+
+                    bodyHtml += `
+                        <td class="p-4 border-b border-gray-100 dark:border-gray-700/50 text-left bg-transparent">
+                            <span class="${textClass} tracking-tight">${displayVal}</span>
+                        </td>
+                    `;
+                });
+                bodyHtml += `</tr>`;
+            });
+            tableBody.innerHTML = bodyHtml;
+        }
+
+        // Eliminar fila
+        window.removeCompany = (index) => { 
+            companiesData.splice(index, 1);
+            currentCompanies.splice(index, 1);
+            renderTable(); 
+        };
+        
+        // Eliminar columna
+        window.removeRatio = (index) => {
+            const ratioId = currentMetrics[index].id;
+            currentMetrics.splice(index, 1);
+            // Opcionalmente, eliminar el dato de cada empresa para ahorrar memoria
+            companiesData.forEach(c => delete c[ratioId]);
+            renderTable();
+        };
+
+        // Solicitar y procesar una nueva empresa
+        async function handleAddCompany() {
+            const name = companyInput.value.trim();
+            if (!name || isLoading) return;
+            if (currentCompanies.some(c => c.toLowerCase().includes(name.toLowerCase()))) {
+                return showStatus("Esta empresa ya está en la matriz.", "warning");
+            }
+            
+            setLoading(true, `Analizando fundamentales de ${name}...`);
+            const data = await fetchFinancialData([name], currentMetrics);
+            if (data && data.length > 0) {
+                companiesData.push(data[0]);
+                currentCompanies.push(name);
+                companyInput.value = '';
+                renderTable();
+                showStatus(`Datos financieros agregados para ${data[0].name}.`);
+            }
+            setLoading(false);
+        }
+
+        // Solicitar y procesar un nuevo ratio para todas las empresas existentes
+        async function handleAddRatio() {
+            const label = ratioInput.value.trim();
+            if (!label || isLoading || currentCompanies.length === 0) return;
+            
+            // Generar un ID simple eliminando acentos y espacios
+            const ratioId = label.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+            
+            if (currentMetrics.some(m => m.id === ratioId)) {
+                return showStatus("Este ratio ya está calculado en la matriz.", "warning");
+            }
+            
+            setLoading(true, `Calculando ratio: ${label}...`);
+            const newMetric = { id: ratioId, label: label };
+            
+            const namesToFetch = companiesData.map(c => c.name);
+            const data = await fetchFinancialData(namesToFetch, [newMetric]);
+            
+            if (data && data.length > 0) {
+                // Combinar la nueva métrica en el objeto `companiesData` existente
+                data.forEach(newCompanyData => {
+                    let existingComp = companiesData.find(c => c.ticker === newCompanyData.ticker || c.name === newCompanyData.name);
+                    if (existingComp) {
+                        existingComp[ratioId] = newCompanyData[ratioId];
+                    }
+                });
+                currentMetrics.push(newMetric);
+                ratioInput.value = '';
+                renderTable();
+                showStatus(`Columna "${label}" añadida con éxito.`);
+            }
+            setLoading(false);
+        }
+        
+        // Ejecución al abrir la app: Cargar las empresas y métricas predeterminadas
+        async function loadInitialData() {
+            if (!localStorage.getItem('gemini_api_key')) {
+                renderTable(); // Terminará mostrando el Empty State avisando sobre la API
+                return;
+            }
+            
+            setLoading(true, "Descargando matriz de consenso financiero (esto puede tardar unos segundos)...");
+            const initialData = await fetchFinancialData(currentCompanies, currentMetrics);
+            
+            if (initialData && initialData.length > 0) {
+                companiesData = initialData;
+                renderTable();
+                showStatus("Datos actualizados correctamente.", "success");
+            } else {
+                renderTable();
+            }
+            setLoading(false);
+        }
+
+        // Asignar listeners a la UI
+        addCompanyBtn.addEventListener('click', handleAddCompany);
+        companyInput.addEventListener('keypress', (e) => e.key === 'Enter' && handleAddCompany());
+        
+        addRatioBtn.addEventListener('click', handleAddRatio);
+        ratioInput.addEventListener('keypress', (e) => e.key === 'Enter' && handleAddRatio());
+        
+        refreshDataBtn.addEventListener('click', () => {
+            if(currentCompanies.length > 0 && currentMetrics.length > 0) {
+                loadInitialData();
+            }
+        });
+
+        // Arranque de la aplicación
+        window.onload = loadInitialData;
+
     </script>
 </body>
 </html>
